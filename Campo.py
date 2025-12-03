@@ -93,13 +93,72 @@ class Campo:
                 s += ' ' + str(self.ematr[i][j]) + ' '
             print(s)
 
+    def check_win(self):
+        s = 0
+        for raw in self.ematr:
+            for elem in raw:
+                if elem == 'X':
+                    s += 1
+        sn = 0
+        for elem in self.navi:
+            sn += elem
+        if s >= sn:
+            return True
+        return False
+
 def playerturn(campi):
-    print("write player :)")
+    campi[0].printecampo()
+    sparoyx = input("sparo alle coordinate: ")
+    y = int(sparoyx[0])
+    x = int(sparoyx[1])
+    while campi[0].ematr[y][x] != '0':
+        sparoyx = input("sparo alle coordinate: ")
+        y = int(sparoyx[0])
+        x = int(sparoyx[1])
+    if campi[1].matr[y][x] == 'X':
+        distrutta = False
+        for nave in campi[1].cnavi:
+            if (y, x) in nave:
+                nave.remove((y, x))
+                if len(nave) == 0:
+                    distrutta = True
+                break
+        if distrutta:
+            print("SHIP DOWN!")
+        else:
+            print("HIT!")
+        campi[0].ematr[y][x] = 'X'
+    else:
+        print("water...")
+        campi[0].ematr[y][x] = '-'
     time.sleep(1)
 
 
 def botturn(campi):
-    print("write bot :)")
+    campi[1].printecampo()
+    y = random.randint(0, len(campi[1].matr) - 1)
+    x = random.randint(0, len(campi[1].matr) - 1)
+    while campi[1].ematr[y][x] != '0':
+        y = random.randint(0, len(campi[1].matr) - 1)
+        x = random.randint(0, len(campi[1].matr) - 1)
+    print("sparo alle coordinate:", y, x)
+    time.sleep(1)
+    if campi[0].matr[y][x] == 'X':
+        distrutta = False
+        for nave in campi[0].cnavi:
+            if (y, x) in nave:
+                nave.remove((y, x))
+                if len(nave) == 0:
+                    distrutta = True
+                break
+        if distrutta:
+            print("SHIP DOWN!")
+        else:
+            print("HIT!")
+        campi[1].ematr[y][x] = 'X'
+    else:
+        print("water...")
+        campi[1].ematr[y][x] = '-'
     time.sleep(1)
 
 
@@ -109,10 +168,14 @@ def vs_bot(n, navi):
     campi[0].popola_rand()
     campi[1].popola_rand()
 
+
     while True:
         print('turn of player', player)
         if player == 0:
             playerturn(campi)
         else:
             botturn(campi)
+        if campi[player].check_win():
+            print('player', player, 'won!')
+            break
         player = (player + 1) % 2
